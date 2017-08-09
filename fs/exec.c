@@ -344,7 +344,14 @@ restart_interp:
 	while (i&0xfff)
 		put_fs_byte(0,(char *) (i++));
 	eip[0] = ex.a_entry;		/* eip, magic happens :-) */
+
+
+    printk("do_execve: old esp = %x\n", eip[3]);
 	eip[3] = p;			/* stack pointer */
+    printk("do_execve: new esp = %x\n", eip[3]);
+    printk("do_execve: pid = %d\n", current->pid);
+    printk("do_execve: new eip = %d\n", ex.a_entry);
+    printk("do_execve: addr of eip = %x\n", (long)eip);
 	return 0;
 exec_error2:
 	iput(inode);

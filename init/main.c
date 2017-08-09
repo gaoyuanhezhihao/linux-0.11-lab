@@ -103,6 +103,16 @@ static long main_memory_start = 0;
 
 struct drive_info { char dummy[32]; } drive_info;
 
+static int printf(const char *fmt, ...)
+{
+    va_list args;
+    int i;
+
+    va_start(args, fmt);
+    write(1,printbuf,i=vsprintf(printbuf, fmt, args));
+    va_end(args);
+    return i;
+}
 void main(void)		/* This really IS void, no error here. */
 {			/* The startup routine assumes (well, ...) this */
 /*
@@ -139,6 +149,7 @@ void main(void)		/* This really IS void, no error here. */
 	sti();
 	move_to_user_mode();
 	if (!fork()) {		/* we count on this going ok */
+        printf("process 1 started%d\n", 1);
 		init();
 	}
 /*
@@ -151,16 +162,16 @@ void main(void)		/* This really IS void, no error here. */
 	for(;;) pause();
 }
 
-static int printf(const char *fmt, ...)
-{
-	va_list args;
-	int i;
+/*static int printf(const char *fmt, ...)*/
+/*{*/
+	/*va_list args;*/
+	/*int i;*/
 
-	va_start(args, fmt);
-	write(1,printbuf,i=vsprintf(printbuf, fmt, args));
-	va_end(args);
-	return i;
-}
+	/*va_start(args, fmt);*/
+	/*write(1,printbuf,i=vsprintf(printbuf, fmt, args));*/
+	/*va_end(args);*/
+	/*return i;*/
+/*}*/
 
 static char * argv_rc[] = { "/bin/sh", NULL };
 static char * envp_rc[] = { "HOME=/", NULL };
@@ -181,9 +192,13 @@ void init(void)
 	printf("Free mem: %d bytes\n\r",memory_end-main_memory_start);
 	if (!(pid=fork())) {
 		close(0);
+        printf("init: open /etc/rc\n");
 		if (open("/etc/rc",O_RDONLY,0))
 			_exit(1);
+        printf("init: before execve(\"/bin/sh\",argv_rc,envp_rc)\n");
+        printf("init: %d\n", __LINE__);
 		execve("/bin/sh",argv_rc,envp_rc);
+        printf("init: %d\n", __LINE__);
 		_exit(2);
 	}
 	if (pid>0)
@@ -194,12 +209,16 @@ void init(void)
 			printf("Fork failed in init\r\n");
 			continue;
 		}
+        printf("init: pid=%d\n", pid);
 		if (!pid) {
 			close(0);close(1);close(2);
 			setsid();
+            printf("init: after setsid() \n");
 			(void) open("/dev/tty0",O_RDWR,0);
 			(void) dup(0);
 			(void) dup(0);
+            printf("init: before execve /bin/sh\n");
+            printf("init: %d\n", __LINE__);
 			_exit(execve("/bin/sh",argv,envp));
 		}
 		while (1)

@@ -22,6 +22,7 @@
 #define TASK_ZOMBIE		3
 #define TASK_STOPPED		4
 
+#define KERNEL_STK_TOP 12
 #ifndef NULL
 #define NULL ((void *) 0)
 #endif
@@ -32,6 +33,7 @@ extern int free_page_tables(unsigned long from, unsigned long size);
 extern void sched_init(void);
 extern void schedule(void);
 extern void trap_init(void);
+extern void switch_to(struct task_struct * tsk_next, long ldt_next);
 #ifndef PANIC
 void panic(const char * str);
 #endif
@@ -82,6 +84,7 @@ struct task_struct {
 	long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
 	long counter;
 	long priority;
+    long krn_stk_top;
 	long signal;
 	struct sigaction sigaction[32];
 	long blocked;	/* bitmap of masked signals */
@@ -114,6 +117,7 @@ struct task_struct {
  */
 #define INIT_TASK \
 /* state etc */	{ 0,15,15, \
+/*kernel stk*/ PAGE_SIZE+(long)&init_task,\
 /* signals */	0,{{},},0, \
 /* ec,brk... */	0,0,0,0,0,0, \
 /* pid etc.. */	0,-1,0,0,0, \
@@ -170,20 +174,20 @@ __asm__("str %%ax\n\t" \
  * This also clears the TS-flag if the task we switched to has used
  * tha math co-processor latest.
  */
-#define switch_to(n) {\
-struct {long a,b;} __tmp; \
-__asm__("cmpl %%ecx,current\n\t" \
-	"je 1f\n\t" \
-	"movw %%dx,%1\n\t" \
-	"xchgl %%ecx,current\n\t" \
-	"ljmp *%0\n\t" \
-	"cmpl %%ecx,last_task_used_math\n\t" \
-	"jne 1f\n\t" \
-	"clts\n" \
-	"1:" \
-	::"m" (*&__tmp.a),"m" (*&__tmp.b), \
-	"d" (_TSS(n)),"c" ((long) task[n])); \
-}
+//#define switch_to(n) {\
+//struct {long a,b;} __tmp; \
+//__asm__("cmpl %%ecx,current\n\t" \
+	//"je 1f\n\t" \
+	//"movw %%dx,%1\n\t" \
+	//"xchgl %%ecx,current\n\t" \
+	//"ljmp *%0\n\t" \
+	//"cmpl %%ecx,last_task_used_math\n\t" \
+	//"jne 1f\n\t" \
+	//"clts\n" \
+	//"1:" \
+	//::"m" (*&__tmp.a),"m" (*&__tmp.b), \
+	//"d" (_TSS(n)),"c" ((long) task[n])); \
+//}
 
 #define PAGE_ALIGN(n) (((n)+0xfff)&0xfffff000)
 
