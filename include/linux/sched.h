@@ -142,6 +142,7 @@ struct task_struct {
 extern struct task_struct *task[NR_TASKS];
 extern struct task_struct *last_task_used_math;
 extern struct task_struct *current;
+extern struct tss_struct * tss;
 extern long volatile jiffies;
 extern long startup_time;
 

@@ -19,6 +19,7 @@
 #include <asm/system.h>
 
 extern void write_verify(unsigned long address);
+extern void first_ret_from_kernel(void);
 
 long last_pid=0;
 
@@ -77,6 +78,25 @@ int copy_process(int nr,long ebp,long edi,long esi,long gs,long none,
 	struct file *f;
 
 	p = (struct task_struct *) get_free_page();
+    long * krn_stk = (long*)(PAGE_SIZE + (long)p);
+    *(--krn_stk) = ss & 0xffff;
+    *(--krn_stk) = esp;
+    *(--krn_stk) = eflags;
+    *(--krn_stk) = cs & 0xffff;
+    *(--krn_stk) = eip;
+    *(--krn_stk) = ds & 0xffff;
+    *(--krn_stk) = es & 0xffff;
+    *(--krn_stk) = fs & 0xffff;
+    *(--krn_stk) = gs & 0xffff;
+    *(--krn_stk) = esi;
+    *(--krn_stk) = edi;
+    *(--krn_stk) = edx;
+    *(--krn_stk) = first_ret_from_kernel;
+    *(--krn_stk) = ebp;
+    *(--krn_stk) = ecx;
+    *(--krn_stk) = ebx;
+    *(--krn_stk) = 0;
+
 	if (!p)
 		return -EAGAIN;
 	task[nr] = p;
@@ -84,6 +104,7 @@ int copy_process(int nr,long ebp,long edi,long esi,long gs,long none,
 	// NOTE!: the following statement now work with gcc 4.3.2 now, and you
 	// must compile _THIS_ memcpy without no -O of gcc.#ifndef GCC4_3
 	*p = *current;	/* NOTE! this doesn't copy the supervisor stack */
+    p->krn_stk_top = krn_stk;
 	p->state = TASK_UNINTERRUPTIBLE;
 	p->pid = last_pid;
 	p->father = current->pid;
@@ -131,9 +152,11 @@ int copy_process(int nr,long ebp,long edi,long esi,long gs,long none,
 		current->root->i_count++;
 	if (current->executable)
 		current->executable->i_count++;
-	set_tss_desc(gdt+(nr<<1)+FIRST_TSS_ENTRY,&(p->tss));
+	/*set_tss_desc(gdt+(nr<<1)+FIRST_TSS_ENTRY,&(p->tss));*/
+	set_tss_desc(gdt+(nr<<1)+FIRST_TSS_ENTRY,tss);
 	set_ldt_desc(gdt+(nr<<1)+FIRST_LDT_ENTRY,&(p->ldt));
 	p->state = TASK_RUNNING;	/* do this last, just in case */
+
 	return last_pid;
 }
 
