@@ -19,6 +19,7 @@
 #include <asm/segment.h>
 
 #include <signal.h>
+#include <linux/log.h>
 
 #define _S(nr) (1<<((nr)-1))
 #define _BLOCKABLE (~(_S(SIGKILL) | _S(SIGSTOP)))
@@ -138,6 +139,10 @@ void schedule(void)
 				(*p)->counter = ((*p)->counter >> 1) +
 						(*p)->priority;
 	}
+    if(next > 3) {
+        fprintk(3, "%ld hello\n", current->pid);
+
+    }
 	switch_to(next);
 }
 
