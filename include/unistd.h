@@ -130,6 +130,11 @@
 #define __NR_setreuid	70
 #define __NR_setregid	71
 
+#define __NR_sem_open 72
+#define __NR_sem_wait 73
+#define __NR_sem_post 74
+#define __NR_sem_unlink 75
+
 #define _syscall0(type,name) \
   type name(void) \
 { \
@@ -204,9 +209,7 @@ int execvp(const char * file, char ** argv);
 int execl(const char * pathname, char * arg0, ...);
 int execlp(const char * file, char * arg0, ...);
 int execle(const char * pathname, char * arg0, ...);
-//volatile void exit(int status);
 void _exit(int status);
-//volatile void _exit(int status);
 int fcntl(int fildes, int cmd, ...);
 static int fork(void);
 int getpid(void);
