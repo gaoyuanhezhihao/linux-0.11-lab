@@ -139,10 +139,10 @@ void schedule(void)
 				(*p)->counter = ((*p)->counter >> 1) +
 						(*p)->priority;
 	}
-    if(next > 3) {
-        fprintk(3, "%ld hello\n", current->pid);
+    /*if(next > 3) {*/
+        /*fprintk(3, "%ld hello\n", current->pid);*/
 
-    }
+    /*}*/
 	switch_to(next);
 }
 
