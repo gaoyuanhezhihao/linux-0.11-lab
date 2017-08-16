@@ -144,7 +144,7 @@ void schedule(void)
     if(next > 3) {
         fprintk(3, "%ld hello\n", current->pid);
 	}
-	/*printk("schedule: next nr= %d, next pid= %d\n",next, p_next_tsk->pid);*/
+	
     switch_to(p_next_tsk, _LDT(next));
 }
 
