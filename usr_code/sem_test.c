@@ -10,7 +10,7 @@
 #define BUF_SIZE 10
 FILE *fpWork;
 FILE *fpFakeTerminal;
-void producer(const int id, const int start, const int end, struct sem_t * pSem_write, struct sem_t *pSem_mutex, struct sem_t *pSem_read) {
+void producer(const int id, const int start, const int end, sem_t * pSem_write, sem_t *pSem_mutex, sem_t *pSem_read) {
 
     int i = start;
     int w_p = 0;
@@ -44,7 +44,7 @@ void producer(const int id, const int start, const int end, struct sem_t * pSem_
     exit(0);
 }
 
-void consumer(const int id, int cnt, struct sem_t * pSem_write, struct sem_t *pSem_mutex, struct sem_t *pSem_read) {
+void consumer(const int id, int cnt, sem_t * pSem_write, sem_t *pSem_mutex, sem_t *pSem_read) {
 
     int w_p = 0;
     int r_p = 0;
@@ -82,9 +82,9 @@ void consumer(const int id, int cnt, struct sem_t * pSem_write, struct sem_t *pS
 int main(int argc,char **argv)
 {
 
-    struct sem_t *pSem_write= NULL;
-    struct sem_t *pSem_read= NULL;
-    struct sem_t *pSem_mutex= NULL;
+    sem_t *pSem_write= NULL;
+    sem_t *pSem_read= NULL;
+    sem_t *pSem_mutex= NULL;
     int iwait=0;
     int WriteReadIndex[2]={0,0};
     int init_data = 0;

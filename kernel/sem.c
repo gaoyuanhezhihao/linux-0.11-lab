@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <string.h>
 #include <linux/sched.h>
+#include <linux/sem.h>
 #include <linux/log.h>
 #include <asm/segment.h>
 #include <asm/system.h>
@@ -8,15 +9,15 @@
 
 
 #define NR_SEM 32
-#define SEM_NAME_LEN 80
+/*#define SEM_NAME_LEN 80*/
 
-struct sem_t{
-    char key[SEM_NAME_LEN];
-    unsigned int cnt;
-    struct task_struct * wait_proc;
-};
+/*sem_t{*/
+    /*char key[SEM_NAME_LEN];*/
+    /*unsigned int cnt;*/
+    /*struct task_struct * wait_proc;*/
+/*};*/
 
-struct sem_t sem_vec[NR_SEM];
+sem_t sem_vec[NR_SEM];
 
 void sem_init() {
     int i = 0;
@@ -34,14 +35,14 @@ void strcpy_krn(char * dst, const char * src_usr) {
     }
 }
 
-struct sem_t * sys_sem_open(const char * key, unsigned int init_val) {
+sem_t * sys_sem_open(const char * key, unsigned int init_val) {
     /*printk("sys_sem_open\n");*/
     /*return 0;*/
     char key_cp[SEM_NAME_LEN];
     strcpy_krn(key_cp, key);
     fprintk(3, "sys_sem_open: PID=%d, key=%s, val=%d\n", current->pid, key_cp, init_val);
     int i = 0;
-    struct sem_t * empty;
+    sem_t * empty;
     for(i = 0; i < NR_SEM; ++i) {
         if(sem_vec[i].key[0] == '\0') {
             empty = sem_vec + i;
@@ -73,7 +74,7 @@ void sys_sem_unlink(const char *key) {
     return;
 }
 
-int sys_sem_wait(struct sem_t * p_sem) {
+int sys_sem_wait(sem_t * p_sem) {
     /*printk("sys_sem_wait\n");*/
     /*return 0;*/
     cli();
@@ -86,7 +87,7 @@ int sys_sem_wait(struct sem_t * p_sem) {
     return 0;
 }
 
-int sys_sem_post(struct sem_t * p_sem) {
+int sys_sem_post(sem_t * p_sem) {
     /*printk("sys_sem_post\n");*/
     /*return 0;*/
     cli();
