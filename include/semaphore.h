@@ -45,6 +45,4 @@ inline int sem_unlink(const char * name) {
     return (int)__res;
 }
 
-
-
 #endif //SEMAPHORE_H
