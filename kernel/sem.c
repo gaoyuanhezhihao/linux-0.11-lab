@@ -8,7 +8,7 @@
 /*#include <linux/sem.h>*/
 
 
-#define NR_SEM 32
+#define NR_SEM 5 
 /*#define SEM_NAME_LEN 80*/
 
 /*sem_t{*/
@@ -40,7 +40,7 @@ sem_t * sys_sem_open(const char * key, unsigned int init_val) {
     /*return 0;*/
     char key_cp[SEM_NAME_LEN];
     strcpy_krn(key_cp, key);
-    fprintk(3, "sys_sem_open: PID=%d, key=%s, val=%d\n", current->pid, key_cp, init_val);
+    /*fprintk(3, "sys_sem_open: PID=%d, key=%s, val=%d\n", current->pid, key_cp, init_val);*/
     int i = 0;
     sem_t * empty;
     for(i = 0; i < NR_SEM; ++i) {
@@ -63,7 +63,7 @@ void sys_sem_unlink(const char *key) {
     char key_cp[SEM_NAME_LEN];
     strcpy_krn(key_cp, key);
 
-    fprintk(3, "sys_sem_unlink: PID=%d, key=%s\n", current->pid, key_cp);
+    /*fprintk(3, "sys_sem_unlink: PID=%d, key=%s\n", current->pid, key_cp);*/
     int i = 0;
     for(i = 0; i < NR_SEM; ++i) {
         if(strcmp(key_cp, sem_vec[i].key)) {
@@ -79,9 +79,9 @@ int sys_sem_wait(sem_t * p_sem) {
     /*return 0;*/
     cli();
     while(p_sem->cnt == 0) {
-        sleep_on(&(p_sem->wait_proc));
+        sleep_on_stack(&(p_sem->wait_proc));
     }
-    fprintk(3, "sys_sem_wait: PID=%d, key=%s, cnt=%d\n", current->pid, p_sem->key, p_sem->cnt);
+    /*fprintk(3, "sys_sem_wait: PID=%d, key=%s, cnt=%d\n", current->pid, p_sem->key, p_sem->cnt);*/
     --p_sem->cnt;
     sti();
     return 0;
@@ -91,10 +91,10 @@ int sys_sem_post(sem_t * p_sem) {
     /*printk("sys_sem_post\n");*/
     /*return 0;*/
     cli();
-    fprintk(3, "sys_sem_post: PID=%d, key=%s, cnt=%d\n", current->pid, p_sem->key, p_sem->cnt);
+    /*fprintk(3, "sys_sem_post: PID=%d, key=%s, cnt=%d\n", current->pid, p_sem->key, p_sem->cnt);*/
     ++p_sem->cnt;
     if(p_sem->wait_proc) {
-        wake_up(&p_sem->wait_proc);
+        wake_up(&(p_sem->wait_proc));
     }
     sti();
     return 0;

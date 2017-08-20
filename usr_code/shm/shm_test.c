@@ -18,14 +18,16 @@ void producer(const int id, const int start, const int end, sem_t * pSem_write, 
     /*printf("producer\n");*/
     const int shm_id = shmget(key, 1, 0666 | IPC_CREAT);
     int * const shm_hp = shmat(shm_id, 0, 0);
-    printf("before write shm...\n");
-    printf("shm_hp=%ld", (long)shm_hp);
+    /*printf("before write shm...\n");*/
+    /*printf("shm_hp=%ld", (long)shm_hp);*/
     /*getchar();*/
     shm_hp[RD_POS] = 0;
-    printf("after write shm...\n");
+    /*printf("after write shm...\n");*/
     shm_hp[WR_POS] = 0;
     while(i < end) {
+        /*printf("P%d:waiting write\n",id);*/
         sem_wait(pSem_write);
+        /*printf("P%d:waiting mutex\n",id);*/
         sem_wait(pSem_mutex);
 
         r_p = shm_hp[RD_POS];
@@ -34,13 +36,16 @@ void producer(const int id, const int start, const int end, sem_t * pSem_write, 
             w_p = 0;
         }
 
-        shm_hp[w_p+HEAD_LEN] = i++;
-        shm_hp[WR_POS] = ++w_p;
         printf("P%d:%d, %d is writed\n",id, w_p, i);
         fflush(stdout);
+        shm_hp[w_p+HEAD_LEN] = i++;
+        shm_hp[WR_POS] = ++w_p;
 
+        /*printf("P%d:posting mutex\n",id);*/
         sem_post(pSem_mutex);
+        /*printf("P%d:posting read\n",id);*/
         sem_post(pSem_read);
+        fflush(stdout);
     }
     exit(0);
     }
@@ -53,8 +58,13 @@ void consumer(const int id, int cnt, sem_t * pSem_write, sem_t * pSem_mutex, sem
 
     const int shm_id = shmget(key, 1, 0666 | IPC_CREAT);
     int * const shm_hp = shmat(shm_id, 0, 0);
+    int i = 0;
+    int j = 0;
     while(cnt-- > 0) {
+        /*printf("C%d: waiting read\n", id);*/
+        fflush(stdout);
         sem_wait(pSem_read);
+        /*printf("C%d: waiting mutex\n", id);*/
         sem_wait(pSem_mutex);
 
         r_p = shm_hp[RD_POS];
@@ -63,12 +73,20 @@ void consumer(const int id, int cnt, sem_t * pSem_write, sem_t * pSem_mutex, sem
         }
         data = shm_hp[HEAD_LEN + r_p];
         printf("C%d:%d, %d\n", id, r_p, data);
-        fflush(stdout);
+        /*fflush(stdout);*/
 
         shm_hp[RD_POS] = ++r_p;
 
+        /*printf("C%d: posting mutex\n", id);*/
         sem_post(pSem_mutex);
+        /*printf("C%d: posting write\n", id);*/
         sem_post(pSem_write);
+        fflush(stdout);
+        /*for(i = 0; i < 1000000; ++i) {*/
+            /*for(j = 0; j < 100; ++j) {*/
+                /*;*/
+            /*}*/
+        /*}*/
     }
     exit(0);
 }
@@ -82,11 +100,13 @@ int main(int argc, char ** argv) {
     int i = 0;
     int pid = 1;
 
-    const int write_len = 10;
+    const int write_len = 500;
     const int producer_num = 1;
     const int consumer_num = 5;
     const int read_len = write_len * producer_num / consumer_num;
     const int key = 226;
+    const int shm_id = shmget(key, 1, 0666 | IPC_CREAT);
+    int * const shm_hp = shmat(shm_id, 0, 0);
 
     sem_unlink("write");
     sem_unlink("read");
@@ -94,8 +114,9 @@ int main(int argc, char ** argv) {
     pSem_write=sem_open("write",O_CREAT | O_EXCL,0600,BUF_SIZE);
     pSem_read=sem_open("read",O_CREAT | O_EXCL,0600,0);
     pSem_mutex=sem_open("mutex",O_CREAT | O_EXCL,0600,1);
+    shm_hp[RD_POS] = 0;
+    shm_hp[WR_POS] = 0;
 
-    printf("main start\n");
     for(i = 0; i < producer_num; ++i) {
         if(pid == 0) {
             break;

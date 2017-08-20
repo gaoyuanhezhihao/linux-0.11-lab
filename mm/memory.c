@@ -194,14 +194,16 @@ int copy_page_tables(unsigned long from,unsigned long to,long size)
  * out of memory (either when trying to access page-table or
  * page.)
  */
-unsigned long shm_map(unsigned long page,unsigned long address) {
+unsigned long shm_map(unsigned long page,unsigned long address, char first_at) {
 	unsigned long tmp, *page_table;
 /* NOTE !!! This uses the fact that _pg_dir=0 */
-	if (page < LOW_MEM || page >= HIGH_MEMORY)
-		printk("Trying to put page %p at %p\n",page,address);
+	/*if (page < LOW_MEM || page >= HIGH_MEMORY)*/
+		/*printk("Trying to put page %p at %p\n",page,address);*/
 	/*if (mem_map[(page-LOW_MEM)>>12] != 1)*/
 		/*printk("mem_map disagrees with %p at %p\n",page,address);*/
-    ++mem_map[(page-LOW_MEM)>>12];
+    if(!first_at) {
+        ++mem_map[(page-LOW_MEM)>>12];
+    }
     /*printk("mm_map: %ld-->%ld\n", page, address);*/
 	page_table = (unsigned long *) ((address>>20) & 0xffc);
 	if ((*page_table)&1)

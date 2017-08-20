@@ -57,9 +57,6 @@ const void * sys_shmat(int shm_id) {
     }
 
 
-    if(shm_p->addr == 0) {
-        shm_p->addr = get_free_page();
-    }
 
     /*align */
     current->brk += (PAGE_SIZE - current->brk %PAGE_SIZE);
@@ -67,7 +64,12 @@ const void * sys_shmat(int shm_id) {
     current->brk += PAGE_SIZE;
 
     /*put_page(shm_p->addr, v_addr);*/
-    shm_map(shm_p->addr, v_addr);
+    if(shm_p->addr == 0) {
+        shm_p->addr = get_free_page();
+        shm_map(shm_p->addr, v_addr, 1);
+    }else {
+        shm_map(shm_p->addr, v_addr, 0);
+    }
     /*printk("shm_at: %d\n", shm_p->addr);*/
     return (const void *) (v_addr-current->start_code);
 }

@@ -134,7 +134,7 @@ int copy_process(int nr,long ebp,long edi,long esi,long gs,long none,
 		current->executable->i_count++;
 	set_tss_desc(gdt+(nr<<1)+FIRST_TSS_ENTRY,&(p->tss));
 	set_ldt_desc(gdt+(nr<<1)+FIRST_LDT_ENTRY,&(p->ldt));
-    /*init_proc_shm_p(p);*/
+    init_proc_shm_p(p);
 	p->state = TASK_RUNNING;	/* do this last, just in case */
 	return last_pid;
 }

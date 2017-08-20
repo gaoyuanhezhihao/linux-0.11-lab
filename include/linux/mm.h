@@ -6,6 +6,5 @@
 extern unsigned long get_free_page(void);
 extern unsigned long put_page(unsigned long page,unsigned long address);
 extern void free_page(unsigned long addr);
-//extern unsigned long shm_map(unsigned long page,unsigned long address); 
 
 #endif
