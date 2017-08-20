@@ -12,6 +12,7 @@
 #include <linux/kernel.h>
 #include <linux/tty.h>
 #include <asm/segment.h>
+#include <sys/shm.h>
 
 int sys_pause(void);
 int sys_close(int fd);
@@ -102,6 +103,7 @@ static void tell_father(int pid)
 int do_exit(long code)
 {
 	int i;
+    clear_shm_p(current);
 	free_page_tables(get_base(current->ldt[1]),get_limit(0x0f));
 	free_page_tables(get_base(current->ldt[2]),get_limit(0x17));
 	for (i=0 ; i<NR_TASKS ; i++)

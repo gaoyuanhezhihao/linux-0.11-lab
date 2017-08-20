@@ -4,16 +4,22 @@
 #define __LIBRARY__
 #include <unistd.h>
 
+#define IPC_CREAT 1
 #define SHM_KEY_LEN 20
-struct shm_struct{
+typedef struct shm_struct{
     unsigned long addr;
     int key;
     int cnt;
-};
+}shm_t;
 
-typedef struct shm_struct shm_t;
+struct task_struct;
 
-inline int shmget(int key, unsigned int size, int shmflg) {
+void init_proc_shm_p(struct task_struct * tsk);
+void clear_shm_p(struct task_struct * tsk);
+void shm_vec_init();
+
+
+static inline int shmget(int key, unsigned int size, int shmflg) {
     long __res;
     __asm__ volatile("int $0x80"
             : "=a"(__res)
@@ -21,7 +27,7 @@ inline int shmget(int key, unsigned int size, int shmflg) {
     return (int)__res;
 }
 
-inline void * shmat(int shm_id, const void * shm_addr, int shmflg) {
+static inline void * shmat(int shm_id, const void * shm_addr, int shmflg) {
     long __res;
     __asm__ volatile ("int $0x80"
             : "=a" (__res)
@@ -29,7 +35,7 @@ inline void * shmat(int shm_id, const void * shm_addr, int shmflg) {
     return (void *) __res;
 }
 
-inline int shmdt(int shm_id) {
+static inline int shmdt(int shm_id) {
     long __res;
     __asm__ volatile ("int $0x80"
             : "=a" (__res)

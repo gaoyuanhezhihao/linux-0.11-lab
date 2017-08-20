@@ -41,6 +41,7 @@ static inline _syscall0(int,sync)
 
 #include <linux/fs.h>
 #include <linux/sem.h>
+#include <sys/shm.h>
 
 static char printbuf[1024];
 
@@ -135,6 +136,7 @@ void main(void)		/* This really IS void, no error here. */
 	time_init();
 	sched_init();
     sem_init();
+    shm_vec_init();
 	buffer_init(buffer_memory_end);
 	hd_init();
 	floppy_init();
