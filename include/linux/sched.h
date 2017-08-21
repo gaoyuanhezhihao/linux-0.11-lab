@@ -26,7 +26,8 @@
 #ifndef NULL
 #define NULL ((void *) 0)
 #endif
-
+struct shm_struct;
+#define NR_SHM_OPEN 10
 extern int copy_page_tables(unsigned long from, unsigned long to, long size);
 extern int free_page_tables(unsigned long from, unsigned long size);
 
@@ -109,6 +110,7 @@ struct task_struct {
 	struct desc_struct ldt[3];
 /* tss for this task */
 	struct tss_struct tss;
+    struct shm_struct * shm_p[NR_SHM_OPEN];
 };
 
 /*
@@ -135,7 +137,7 @@ struct task_struct {
 	 0,0,0,0,0,0,0,0, \
 	 0,0,0x17,0x17,0x17,0x17,0x17,0x17, \
 	 _LDT(0),0x80000000, \
-		{} \
+		{}\
 	}, \
 }
 
@@ -150,6 +152,7 @@ extern long startup_time;
 
 extern void add_timer(long jiffies, void (*fn)(void));
 extern void sleep_on(struct task_struct ** p);
+//extern void sleep_on_stack(struct task_struct ** p);
 extern void interruptible_sleep_on(struct task_struct ** p);
 extern void wake_up(struct task_struct ** p);
 

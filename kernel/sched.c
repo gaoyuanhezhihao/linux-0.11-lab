@@ -141,11 +141,10 @@ void schedule(void)
 				(*p)->counter = ((*p)->counter >> 1) +
 						(*p)->priority;
 	}
-    if(next > 3) {
-        fprintk(3, "%ld hello\n", current->pid);
-	}
-	
-    switch_to(p_next_tsk, _LDT(next));
+    /*if(next > 3) {*/
+        /*fprintk(3, "%ld hello\n", current->pid);*/
+    /*}*/
+	switch_to(p_next_tsk, _LDT(next));
 }
 
 int sys_pause(void)
@@ -153,6 +152,25 @@ int sys_pause(void)
 	current->state = TASK_INTERRUPTIBLE;
 	schedule();
 	return 0;
+}
+
+void sleep_on_stack(struct task_struct **p) {
+    struct task_struct *tmp;
+    if(!p) {
+        return;
+    }
+
+    /*if(current == &(init_task.task)) {*/
+		/*panic("task[0] trying to sleep");*/
+    /*}*/
+    tmp = *p;
+    *p = current;
+    current->state = TASK_UNINTERRUPTIBLE;
+    schedule();
+
+    if(tmp) {
+        tmp->state = TASK_RUNNING;
+    }
 }
 
 void sleep_on(struct task_struct **p)

@@ -62,7 +62,8 @@ sa_flags = 8
 sa_restorer = 12
 
 #nr_system_calls = 72
-nr_system_calls = 76
+#nr_system_calls = 76
+nr_system_calls = 79 
 
 /*
  * Ok, I get parallel printer interrupts while using the floppy for some

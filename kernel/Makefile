@@ -33,7 +33,7 @@ CPP	+= -I../include
 
 OBJS  = sched.o system_call.o traps.o asm.o fork.o \
 	panic.o printk.o vsprintf.o sys.o exit.o \
-	signal.o mktime.o switch.o log.o sem.o
+	signal.o mktime.o switch.o log.o sem.o shm.o
 
 kernel.o: $(OBJS)
 	@$(LD) $(LDFLAGS) -o kernel.o $(OBJS)
@@ -52,6 +52,8 @@ dep:
 	@for i in chr_drv blk_drv; do make dep -C $$i; done
 
 ### Dependencies:
+shm.s shm.o: shm.c ../include/unistd.h ../include/sys/shm.h \
+	../include/linux/sched.h
 sem.s sem.o: sem.c ../include/errno.h ../include/linux/sem.h \
 	../include/string.h ../include/linux/sched.h
 log.s log.o: log.c ../include/linux/sched.h ../include/linux/fs.h ../include/fcntl.h
