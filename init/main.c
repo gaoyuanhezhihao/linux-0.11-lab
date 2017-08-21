@@ -139,6 +139,8 @@ void main(void)		/* This really IS void, no error here. */
 	sti();
 	move_to_user_mode();
 	setup((void *) &drive_info);
+    mkdir("/proc", S_IFDIR);
+    mknod("/proc/psinfo", S_IFPROC|0444, 0);
     (void) open("/dev/tty0",O_RDWR,0);
     (void) dup(0);
     (void) dup(0);

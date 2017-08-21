@@ -26,6 +26,7 @@ struct stat {
 #define S_ISUID  0004000
 #define S_ISGID  0002000
 #define S_ISVTX  0001000
+#define S_IFPROC 0030000
 
 #define S_ISREG(m)	(((m) & S_IFMT) == S_IFREG)
 #define S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
