@@ -21,6 +21,7 @@ extern int file_read(struct m_inode * inode, struct file * filp,
 		char * buf, int count);
 extern int file_write(struct m_inode * inode, struct file * filp,
 		char * buf, int count);
+extern int proc_read(struct m_inode * inode, char * buf);
 
 int sys_lseek(unsigned int fd,off_t offset, int origin)
 {
@@ -63,6 +64,9 @@ int sys_read(unsigned int fd,char * buf,int count)
 		return 0;
 	verify_area(buf,count);
 	inode = file->f_inode;
+    if(S_ISPROC(inode->i_mode)) {
+        return proc_read(inode, buf);
+    }
 	if (inode->i_pipe)
 		return (file->f_mode&1)?read_pipe(inode,buf,count):-EIO;
 	if (S_ISCHR(inode->i_mode))

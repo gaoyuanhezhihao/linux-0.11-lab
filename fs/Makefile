@@ -15,7 +15,7 @@ CPP	+= -I../include
 
 OBJS=	open.o read_write.o inode.o file_table.o buffer.o super.o \
 	block_dev.o char_dev.o file_dev.o stat.o exec.o pipe.o namei.o \
-	bitmap.o fcntl.o ioctl.o truncate.o
+	bitmap.o fcntl.o ioctl.o truncate.o proc.o
 
 fs.o: $(OBJS)
 	@$(LD) $(LDFLAGS) -o fs.o $(OBJS)
@@ -30,6 +30,9 @@ dep:
 	@cp tmp_make Makefile
 
 ### Dependencies:
+proc.o: proc.c ../include/sys/stat.h ../include/errno.h \
+	../include/sys/types.h ../include/linux/kernel.h \
+	../include/linux/sched.h
 bitmap.o: bitmap.c ../include/string.h ../include/linux/sched.h \
   ../include/linux/head.h ../include/linux/fs.h ../include/sys/types.h \
   ../include/linux/mm.h ../include/signal.h ../include/linux/kernel.h
